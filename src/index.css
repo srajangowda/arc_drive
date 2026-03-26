@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Default (Dark Theme) */
+  --color-white: 255 255 255;
+  --color-black: 0 0 0;
+  --color-gray-300: 209 213 219;
+  --color-gray-400: 156 163 175;
+  --color-gray-500: 107 114 128;
+  --color-gray-600: 75 85 99;
+  --color-gray-800: 31 41 55;
+  --color-gray-900: 17 24 39;
+  
+  --cyber-black: 5 5 5;
+  --cyber-dark: 10 15 24;
+  --cyber-neon: 0 240 255;
+  --cyber-accent: 0 71 255;
+  --cyber-alert: 255 0 60;
+  --cyber-card: 15 23 42;
+  --cyber-border: 0 240 255;
+  
+  --cyber-bg: #050505;
+}
+
+[data-theme='light'] {
+  --color-white: 15 23 42;      /* slate-900 */
+  --color-black: 255 255 255;   /* white */
+  --color-gray-300: 71 85 105;  /* slate-600 */
+  --color-gray-400: 100 116 139;/* slate-500 */
+  --color-gray-500: 148 163 184;/* slate-400 */
+  --color-gray-600: 203 213 225;/* slate-300 */
+  --color-gray-800: 226 232 240;/* slate-200 */
+  --color-gray-900: 241 245 249;/* slate-100 */
+
+  --cyber-black: 248 250 252;   /* slate-50 */
+  --cyber-dark: 241 245 249;    /* slate-100 */
+  --cyber-neon: 2 132 199;      /* light blue-600 */
+  --cyber-accent: 37 99 235;    /* blue-600 */
+  --cyber-alert: 225 29 72;     /* rose-600 */
+  --cyber-card: 255 255 255;    
+  --cyber-border: 2 132 199;
+  
+  --cyber-bg: #f8fafc;
+}
+
+body {
+    background-color: var(--cyber-bg);
+}
+
+::selection {
+    background: rgba(var(--cyber-neon) / 0.3);
+    color: rgb(var(--color-white));
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--cyber-bg);
+}
+::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-gray-800));
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--cyber-neon));
+}
+
+.glass-panel {
+    background: rgba(var(--cyber-card) / 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(var(--color-white) / 0.1);
+}
+
+.box-shadow-neon {
+    box-shadow: 0 0 10px rgba(var(--cyber-neon) / 0.5), 0 0 20px rgba(var(--cyber-neon) / 0.3);
+}
+
+.text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@keyframes data-stream {
+    0% { transform: translateY(-100%); opacity: 0; }
+    30% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translateY(300%); opacity: 0; }
+}
+
+.animate-data-stream {
+    animation: data-stream 2s linear infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotateX(5deg) rotateY(-5deg); }
+    50% { transform: translateY(-20px) rotateX(10deg) rotateY(0deg); }
+}
+
+.floating-animation {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.block-perspective {
+    transform: rotateX(75deg);
+}
+
+@keyframes scan-line {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+.scan-line-anim {
+    animation: scan-line 3s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+    0% { box-shadow: 0 0 0 0 rgba(var(--cyber-neon) / 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(var(--cyber-neon) / 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--cyber-neon) / 0); }
+}
+
+.pulse-border {
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes alert-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(var(--cyber-alert) / 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(var(--cyber-alert) / 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--cyber-alert) / 0); }
+}
+
+.alert-pulse {
+    animation: alert-pulse 1.5s infinite;
+}
+
+.mask-bottom {
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+}
+
+.cyber-bg {
+    background-color: var(--cyber-bg);
+}
+
+.cyber-grid-pattern {
+    background-image: linear-gradient(to right, rgba(var(--cyber-neon) / 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(var(--cyber-neon) / 0.1) 1px, transparent 1px);
+    background-size: 4rem 4rem;
+}
+
+.btn-primary {
+    @apply px-6 py-2 text-sm font-bold text-black bg-cyber-neon rounded shadow-[0_0_15px_rgba(var(--cyber-neon)/0.4)] hover:shadow-[0_0_25px_rgba(var(--cyber-neon)/0.6)] transition-all;
+}
+.btn-secondary {
+    @apply px-5 py-2 text-sm font-medium text-white border border-cyber-border rounded hover:bg-white/5 transition-colors;
+}
