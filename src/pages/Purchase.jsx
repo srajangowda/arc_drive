@@ -4,16 +4,13 @@ import { Shield, CheckCircle, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export default function Purchase() {
-  const [capacity, setCapacity] = useState('256GB');
+  const [capacity, setCapacity] = useState('128GB');
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
   const prices = {
-    '128GB': 249,
-    '256GB': 349,
-    '512GB': 499,
-    '1TB': 799
+    '128GB': 3800
   };
 
   const currentPrice = prices[capacity];
@@ -58,25 +55,17 @@ export default function Purchase() {
             </div>
             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">ARC Drive Pre-Release</h1>
             <p className="text-xl text-gray-400 mb-6">Hardware-enforced secure USB. Zero data exposure.</p>
-            <div className="text-3xl font-bold text-white mb-8">${currentPrice}</div>
+            <div className="text-3xl font-bold text-white mb-8">₹{currentPrice}</div>
 
             {/* Capacity Selection */}
             <div className="mb-8">
               <h3 className="text-sm font-medium text-gray-400 mb-3">Capacity</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {['128GB', '256GB', '512GB', '1TB'].map(size => (
-                  <button 
-                    key={size}
-                    onClick={() => setCapacity(size)}
-                    className={`py-3 rounded-lg border flex items-center justify-center transition-all ${
-                      capacity === size 
-                        ? 'border-cyber-neon bg-cyber-neon/10 text-white shadow-[0_0_15px_rgba(0,240,255,0.2)]' 
-                        : 'border-white/10 text-gray-400 hover:border-white/30'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+              <div className="grid grid-cols-1 gap-3 max-w-xs">
+                <button 
+                  className="py-3 rounded-lg border border-cyber-neon bg-cyber-neon/10 text-white shadow-[0_0_15px_rgba(0,240,255,0.2)] flex items-center justify-center transition-all cursor-default"
+                >
+                  128GB
+                </button>
               </div>
             </div>
 

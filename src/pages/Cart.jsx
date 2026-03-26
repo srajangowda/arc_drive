@@ -44,7 +44,7 @@ export default function Cart() {
                 
                 <div className="flex-grow">
                   <h3 className="text-lg font-bold text-white">{item.name}</h3>
-                  <p className="text-sm text-cyber-neon font-medium">${item.price}</p>
+                  <p className="text-sm text-cyber-neon font-medium">₹{item.price}</p>
                 </div>
                 
                 <div className="flex flex-col items-end gap-3 shrink-0">
@@ -69,7 +69,7 @@ export default function Cart() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-gray-400">
                   <span>Subtotal</span>
-                  <span>${getCartTotal()}</span>
+                  <span>₹{getCartTotal()}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <span>Shipping</span>
@@ -81,7 +81,7 @@ export default function Cart() {
                 </div>
                 <div className="flex justify-between text-white font-bold text-xl pt-2">
                   <span>Total</span>
-                  <span>${getCartTotal()}</span>
+                  <span>₹{getCartTotal()}</span>
                 </div>
               </div>
 
