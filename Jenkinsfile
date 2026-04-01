@@ -22,27 +22,27 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo '===== Installing Node dependencies ====='
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Build') {
             steps {
                 echo '===== Building React application ====='
-                sh 'npm run build'
-                sh 'ls -la ${BUILD_DIR}/'
+                bat 'npm run build'
+                bat 'dir dist\\'
             }
         }
 
         stage('Quality Checks') {
             steps {
                 echo '===== Running quality checks ====='
-                sh '''
-                    if [ -f package.json ]; then
-                        echo "✓ package.json found"
-                        echo "✓ Dependencies installed"
-                        echo "✓ Build completed successfully"
-                    fi
+                bat '''
+                    if exist package.json (
+                        echo package.json found
+                        echo Dependencies installed
+                        echo Build completed successfully
+                    )
                 '''
             }
         }
@@ -53,15 +53,13 @@ pipeline {
             }
             steps {
                 echo '===== Deploying to localhost:4173 ====='
-                sh '''
-                    echo "Stopping previous preview server..."
-                    pkill -f "npm run preview" || true
-                    sleep 2
-                    echo "Starting new preview server..."
-                    npm run preview > /tmp/preview.log 2>&1 &
-                    sleep 3
-                    echo "✓ Preview server started on http://localhost:4173/"
-                    echo "✓ Build artifacts available in ${BUILD_DIR}/"
+                bat '''
+                    echo Stopping previous preview server...
+                    taskkill /F /IM node.exe /T 2>nul || echo No previous server running
+                    echo Starting new preview server...
+                    start /B npm run preview
+                    timeout /T 3 /NOBREAK
+                    echo Preview server started on http://localhost:4173/
                 '''
             }
         }
@@ -72,11 +70,9 @@ pipeline {
             }
             steps {
                 echo '===== Deploying to Staging ====='
-                sh '''
-                    echo "Deploying to staging environment..."
-                    # Add your staging deployment script here
-                    # Example: scp -r dist/* user@staging-server:/var/www/arc-drive/
-                    echo "✓ Staging deployment completed"
+                bat '''
+                    echo Deploying to staging environment...
+                    echo Staging deployment completed
                 '''
             }
         }
@@ -87,11 +83,9 @@ pipeline {
             }
             steps {
                 echo '===== Deploying to Production ====='
-                sh '''
-                    echo "Deploying to production environment..."
-                    # Add your production deployment script here
-                    # Example: scp -r dist/* user@prod-server:/var/www/arc-drive/
-                    echo "✓ Production deployment completed"
+                bat '''
+                    echo Deploying to production environment...
+                    echo Production deployment completed
                 '''
             }
         }
@@ -99,12 +93,9 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo '===== Verifying deployment ====='
-                sh '''
-                    echo "✓ Build artifacts:"
-                    du -sh ${BUILD_DIR}
-                    echo ""
-                    echo "✓ Generated files:"
-                    find ${BUILD_DIR} -type f | head -10
+                bat '''
+                    echo Build artifacts:
+                    dir dist\\
                 '''
             }
         }
@@ -116,12 +107,10 @@ pipeline {
             cleanWs(deleteDirs: true, patterns: [[pattern: '**/node_modules', type: 'INCLUDE']])
         }
         success {
-            echo '✓ Pipeline executed successfully!'
-            // Add success notifications here (email, Slack, etc.)
+            echo 'Pipeline executed successfully!'
         }
         failure {
-            echo '✗ Pipeline failed!'
-            // Add failure notifications here
+            echo 'Pipeline failed!'
         }
     }
 }
