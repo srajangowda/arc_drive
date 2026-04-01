@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NODE_ENV = 'development'  // Changed to development so devDependencies are installed
+        NODE_ENV = 'development'
         APP_PORT = '4173'
         BUILD_DIR = 'dist'
     }
@@ -22,7 +22,22 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo '===== Installing Node dependencies ====='
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" install --include=dev'
+                bat '''
+                    if exist node_modules\\.install_stamp (
+                        fc /b package-lock.json node_modules\\.install_stamp >nul 2>&1
+                        if errorlevel 1 (
+                            echo package-lock.json changed, reinstalling...
+                            "C:\\Program Files\\nodejs\\npm.cmd" install --prefer-offline
+                            copy /y package-lock.json node_modules\\.install_stamp
+                        ) else (
+                            echo node_modules up to date, skipping install
+                        )
+                    ) else (
+                        echo First install...
+                        "C:\\Program Files\\nodejs\\npm.cmd" install --prefer-offline
+                        copy /y package-lock.json node_modules\\.install_stamp
+                    )
+                '''
             }
         }
 
@@ -30,85 +45,54 @@ pipeline {
             steps {
                 echo '===== Building React application ====='
                 bat 'set NODE_ENV=production && "C:\\Program Files\\nodejs\\npx.cmd" vite build'
-                bat 'if exist dist\\ (dir dist\\) else (echo dist folder not found)'
             }
         }
 
-        stage('Quality Checks') {
-            steps {
-                echo '===== Running quality checks ====='
-                bat '''
-                    if exist package.json (
-                        echo package.json found
-                        echo Dependencies installed
-                    )
-                    if exist dist\\ (
-                        echo Build completed successfully
-                    ) else (
-                        echo Build failed - dist folder missing
-                        exit /b 1
-                    )
-                '''
+        stage('Quality Checks & Verify') {
+            parallel {
+                stage('Quality Checks') {
+                    steps {
+                        echo '===== Running quality checks ====='
+                        bat '''
+                            if exist package.json (echo package.json found) else (echo package.json missing && exit /b 1)
+                            if exist dist\\ (echo Build completed successfully) else (echo Build failed - dist folder missing && exit /b 1)
+                        '''
+                    }
+                }
+                stage('Verify Build Artifacts') {
+                    steps {
+                        echo '===== Verifying build artifacts ====='
+                        bat '''
+                            if exist dist\\ (
+                                dir dist\\
+                                dir dist\\ /s /-c | find "File(s)"
+                            ) else (
+                                echo No build artifacts found
+                            )
+                        '''
+                    }
+                }
             }
         }
 
-        stage('Deploy to Local') {
-            when {
-                expression { params.ENVIRONMENT == 'local' }
-            }
+        stage('Deploy') {
             steps {
-                echo '===== Deploying to localhost:4173 ====='
-                bat '''
-                    echo Stopping previous preview server...
-                    taskkill /F /IM node.exe /T 2>nul || echo No previous server running
-                    echo Starting new preview server...
-                    start "" /B cmd /c "\"C:\\Program Files\\nodejs\\npx.cmd\" vite preview --port 4173 > vite-preview.log 2>&1"
-                    timeout /T 3 /NOBREAK
-                    echo Preview server running on http://localhost:4173/
-                '''
-            }
-        }
-
-        stage('Deploy to Staging') {
-            when {
-                expression { params.ENVIRONMENT == 'staging' }
-            }
-            steps {
-                echo '===== Deploying to Staging ====='
-                bat '''
-                    echo Deploying to staging environment...
-                    echo Staging deployment completed
-                '''
-            }
-        }
-
-        stage('Deploy to Production') {
-            when {
-                expression { params.ENVIRONMENT == 'production' }
-            }
-            steps {
-                echo '===== Deploying to Production ====='
-                bat '''
-                    echo Deploying to production environment...
-                    echo Production deployment completed
-                '''
-            }
-        }
-
-        stage('Verify Deployment') {
-            steps {
-                echo '===== Verifying deployment ====='
-                bat '''
-                    if exist dist\\ (
-                        echo Build artifacts found:
-                        dir dist\\
-                        echo.
-                        echo File count in dist:
-                        dir dist\\ /s /-c | find "File(s)"
-                    ) else (
-                        echo No build artifacts found
-                    )
-                '''
+                script {
+                    if (params.ENVIRONMENT == 'local') {
+                        echo '===== Deploying to localhost:4173 ====='
+                        bat '''
+                            taskkill /F /IM node.exe /T 2>nul || echo No previous server running
+                            start "" /B cmd /c "\"C:\\Program Files\\nodejs\\npx.cmd\" vite preview --port 4173 > vite-preview.log 2>&1"
+                            echo Preview server running on http://localhost:4173/
+                        '''
+                    } else if (params.ENVIRONMENT == 'staging') {
+                        echo '===== Deploying to Staging ====='
+                        bat 'echo Staging deployment completed'
+                    } else if (params.ENVIRONMENT == 'production') {
+                        echo '===== Deploying to Production ====='
+                        bat 'echo Production deployment completed'
+                    }
+                }
             }
         }
     }
@@ -116,7 +100,8 @@ pipeline {
     post {
         always {
             echo '===== Cleaning up workspace ====='
-            cleanWs(deleteDirs: true, patterns: [[pattern: '**/node_modules', type: 'INCLUDE']])
+            // Do NOT delete node_modules — cache it for next run
+            cleanWs(deleteDirs: true, patterns: [[pattern: 'dist', type: 'INCLUDE']])
         }
         success {
             echo 'Pipeline executed successfully!'
