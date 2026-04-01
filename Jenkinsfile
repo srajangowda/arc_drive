@@ -5,6 +5,8 @@ pipeline {
         NODE_ENV = 'production'
         APP_PORT = '4173'
         BUILD_DIR = 'dist'
+        NPM = '"C:\\Program Files\\nodejs\\npm.cmd"'
+        NODE = '"C:\\Program Files\\nodejs\\node.exe"'
     }
 
     parameters {
@@ -22,14 +24,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo '===== Installing Node dependencies ====='
-                bat 'npm install'
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
             }
         }
 
         stage('Build') {
             steps {
                 echo '===== Building React application ====='
-                bat 'npm run build'
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
                 bat 'dir dist\\'
             }
         }
@@ -57,7 +59,7 @@ pipeline {
                     echo Stopping previous preview server...
                     taskkill /F /IM node.exe /T 2>nul || echo No previous server running
                     echo Starting new preview server...
-                    start /B npm run preview
+                    start /B "C:\\Program Files\\nodejs\\npm.cmd" run preview
                     timeout /T 3 /NOBREAK
                     echo Preview server started on http://localhost:4173/
                 '''
@@ -93,10 +95,7 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo '===== Verifying deployment ====='
-                bat '''
-                    echo Build artifacts:
-                    dir dist\\
-                '''
+                bat 'dir dist\\'
             }
         }
     }
