@@ -5,8 +5,6 @@ pipeline {
         NODE_ENV = 'production'
         APP_PORT = '4173'
         BUILD_DIR = 'dist'
-        NPM = '"C:\\Program Files\\nodejs\\npm.cmd"'
-        NODE = '"C:\\Program Files\\nodejs\\node.exe"'
     }
 
     parameters {
@@ -31,8 +29,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo '===== Building React application ====='
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
-                bat 'dir dist\\'
+                bat '"C:\\Program Files\\nodejs\\npx.cmd" vite build'
+                bat 'if exist dist\\ (dir dist\\) else (echo dist folder not found)'
             }
         }
 
@@ -43,7 +41,12 @@ pipeline {
                     if exist package.json (
                         echo package.json found
                         echo Dependencies installed
+                    )
+                    if exist dist\\ (
                         echo Build completed successfully
+                    ) else (
+                        echo Build failed - dist folder missing
+                        exit /b 1
                     )
                 '''
             }
@@ -59,9 +62,9 @@ pipeline {
                     echo Stopping previous preview server...
                     taskkill /F /IM node.exe /T 2>nul || echo No previous server running
                     echo Starting new preview server...
-                    start /B "C:\\Program Files\\nodejs\\npm.cmd" run preview
-                    timeout /T 3 /NOBREAK
-                    echo Preview server started on http://localhost:4173/
+                    start /B "C:\\Program Files\\nodejs\\npx.cmd" vite preview --port 4173
+                    timeout /T 5 /NOBREAK
+                    echo Preview server should be running on http://localhost:4173/
                 '''
             }
         }
@@ -95,7 +98,17 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo '===== Verifying deployment ====='
-                bat 'dir dist\\'
+                bat '''
+                    if exist dist\\ (
+                        echo Build artifacts found:
+                        dir dist\\
+                        echo.
+                        echo File count in dist:
+                        dir dist\\ /s /-c | find "File(s)"
+                    ) else (
+                        echo No build artifacts found
+                    )
+                '''
             }
         }
     }
