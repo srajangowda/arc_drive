@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NODE_ENV = 'production'
+        NODE_ENV = 'development'  // Changed to development so devDependencies are installed
         APP_PORT = '4173'
         BUILD_DIR = 'dist'
     }
@@ -22,14 +22,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo '===== Installing Node dependencies ====='
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" install --include=dev'
             }
         }
 
         stage('Build') {
             steps {
                 echo '===== Building React application ====='
-                bat '"C:\\Program Files\\nodejs\\npx.cmd" vite build'
+                bat 'set NODE_ENV=production && "C:\\Program Files\\nodejs\\npx.cmd" vite build'
                 bat 'if exist dist\\ (dir dist\\) else (echo dist folder not found)'
             }
         }
