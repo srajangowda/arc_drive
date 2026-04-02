@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_ENV = 'development'
-        APP_PORT = '5173'
+        APP_PORT = '4173'
         BUILD_DIR = 'dist'
     }
 
@@ -27,14 +27,14 @@ pipeline {
                         fc /b package-lock.json node_modules\\.install_stamp >nul 2>&1
                         if errorlevel 1 (
                             echo package-lock.json changed, reinstalling...
-                            "C:\\Program Files\\nodejs\\npm.cmd" install --prefer-offline
+                            "C:\\Program Files\\nodejs\\npm.cmd" install --prefer-offline --include=dev
                             copy /y package-lock.json node_modules\\.install_stamp
                         ) else (
                             echo node_modules up to date, skipping install
                         )
                     ) else (
                         echo First install...
-                        "C:\\Program Files\\nodejs\\npm.cmd" install --prefer-offline
+                        "C:\\Program Files\\nodejs\\npm.cmd" install --prefer-offline --include=dev
                         copy /y package-lock.json node_modules\\.install_stamp
                     )
                 '''
@@ -82,7 +82,7 @@ pipeline {
                         echo '===== Deploying to localhost:4173 ====='
                         bat '''
                             taskkill /F /IM node.exe /T 2>nul || echo No previous server running
-                            start "" /B cmd /c "\"C:\\Program Files\\nodejs\\npx.cmd\" vite preview --port 4173 > vite-preview.log 2>&1"
+                            start "" /B cmd /c "\\"C:\\Program Files\\nodejs\\npx.cmd\\" vite preview --port 4173 > vite-preview.log 2>&1"
                             echo Preview server running on http://localhost:4173/
                         '''
                     } else if (params.ENVIRONMENT == 'staging') {
