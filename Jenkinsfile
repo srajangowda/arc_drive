@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_ENV = 'development'
-        APP_PORT = '4173'
+        APP_PORT = '5173'
         BUILD_DIR = 'dist'
     }
 
